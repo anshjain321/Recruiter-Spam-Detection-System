@@ -16,10 +16,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel // Import for viewModel() helper
+import androidx.navigation.NavController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegistrationScreen(
+    navController: NavController,
     viewModel: RegistrationViewModel = viewModel() // ViewModel instance
 ) {
     val fullName by viewModel.fullName.collectAsState()
@@ -32,20 +34,23 @@ fun RegistrationScreen(
     val password by viewModel.password.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val registrationSuccess by viewModel.registrationSuccess.collectAsState()
+    val recruiterId by viewModel.recruiterId.collectAsState()
 
     val context = LocalContext.current
 
-    // Observe registration success/failure for Toast messages
-    LaunchedEffect(registrationSuccess) {
+    // Observe registration success/failure for Toast messages and navigation
+    LaunchedEffect(registrationSuccess, recruiterId) {
         registrationSuccess?.let { success ->
-            if (success) {
+            if (success && recruiterId != null) {
                 Toast.makeText(context, "Registration Successful!", Toast.LENGTH_LONG).show()
-                // Optionally clear fields or navigate away after success
-                // Example: navController.navigate("success_screen")
-            } else {
+                // Navigate to score screen with recruiter ID
+                navController.navigate("score/$recruiterId")
+                viewModel.resetRegistrationSuccess()
+                viewModel.resetRecruiterId()
+            } else if (success == false) {
                 Toast.makeText(context, "Registration Failed. Please try again.", Toast.LENGTH_LONG).show()
+                viewModel.resetRegistrationSuccess()
             }
-            viewModel.resetRegistrationSuccess() // Reset the state to prevent re-showing Toast
         }
     }
 

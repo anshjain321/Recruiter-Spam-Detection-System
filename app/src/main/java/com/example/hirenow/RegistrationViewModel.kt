@@ -43,6 +43,10 @@ class RegistrationViewModel : ViewModel() {
     private val _registrationSuccess = MutableStateFlow<Boolean?>(null)
     val registrationSuccess: StateFlow<Boolean?> = _registrationSuccess.asStateFlow()
 
+    // Store recruiter ID for navigation to score screen
+    private val _recruiterId = MutableStateFlow<Int?>(null)
+    val recruiterId: StateFlow<Int?> = _recruiterId.asStateFlow()
+
     // Functions to update form fields
     fun onFullNameChange(value: String) { _fullName.value = value }
     fun onCompanyNameChange(value: String) { _companyName.value = value }
@@ -74,6 +78,7 @@ class RegistrationViewModel : ViewModel() {
                 _isLoading.value = false
                 if (response.isSuccessful && response.body()?.success == true) {
                     _registrationSuccess.value = true
+                    _recruiterId.value = response.body()?.data?.id
                 } else {
                     _registrationSuccess.value = false
                 }
@@ -90,5 +95,10 @@ class RegistrationViewModel : ViewModel() {
     // so the Toast doesn't reappear on configuration changes.
     fun resetRegistrationSuccess() {
         _registrationSuccess.value = null
+    }
+
+    // Reset recruiter ID
+    fun resetRecruiterId() {
+        _recruiterId.value = null
     }
 }
